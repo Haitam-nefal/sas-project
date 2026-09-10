@@ -1,6 +1,5 @@
 const prompt = require('prompt-sync')()
 
-let seats = 50
 // ===============================================
 let trips = [
   {
@@ -199,7 +198,7 @@ do {
   ChoixMenu(choix)
 } while (choix !== 0)
 
-function Menu() {
+function Menu () {
   console.log('='.repeat(30))
   console.log('RAILWAY MANAGER')
   console.log('='.repeat(30))
@@ -210,11 +209,11 @@ function Menu() {
   console.log('5. Rechercher un ticket')
   console.log('6. Filtrer les trajets')
   console.log('7. Trier les trajets')
-  console.log('7. Bonus')
+  console.log('8. Bonus')
   console.log('0. Quitter')
 }
 
-function ChoixMenu(a) {
+function ChoixMenu (a) {
   switch (a) {
     case 1: {
       AffichageTrajet()
@@ -252,10 +251,14 @@ function ChoixMenu(a) {
       console.log('Quitter...')
       break
     }
+    default: {
+      console.log("ce choix n'exist pas")
+      break
+    }
   }
 }
 
-function AffichageTrajet() {
+function AffichageTrajet () {
   console.log('=== TRAJETS DISPONIBLES ===')
   for (let i = 0; i < trips.length; i++) {
     console.log(
@@ -270,97 +273,136 @@ function AffichageTrajet() {
   }
 }
 
-function AcheteTicket() {
-  const name = prompt("Entrer Votre Nom : ");
-  const idTrajet = Number(prompt("Identifiant du trajet : "))
+function AcheteTicket () {
+  const name = prompt('Entrer Votre Nom : ')
+  const idTrajet = Number(prompt('Identifiant du trajet : '))
 
-  const trajet = trips.find((ele) => ele.id === idTrajet)
+  const trajet = trips.find(ele => ele.id === idTrajet)
   if (!trajet) {
-    console.log("Trajet introuvable.");
+    console.log('Trajet introuvable.')
     return
   }
 
   if (trajet.availableSeats > 0) {
+    const seatNumber = CalculeNumberSeat(idTrajet)
+
     const newTicket = {
       id: config.idTickets++,
       passengerName: name,
       tripId: idTrajet,
-      seatNumber: CalculeNumberSeat(trajet.availableSeats),
+      seatNumber: seatNumber,
       price: trajet.price
     }
-    tickets.push(newTicket);
+    tickets.push(newTicket)
 
-    console.log("Ticket acheté avec succès.");
+    console.log('Ticket acheté avec succès.')
     console.log(`Ticket #${newTicket.seatNumber}
       \nPassager: ${name}
       \nTrajet: ${trajet.departure} → ${trajet.destination}
       \nPlace: ${newTicket.seatNumber}
-      \nPrix: ${trajet.price} DH`);
+      \nPrix: ${trajet.price} DH`)
 
-    trips = trips.map((ele) => ele.id === idTrajet ? { ...ele, availableSeats: ele.availableSeats - 1 } : ele)
+    trips = trips.map(ele =>
+      ele.id === idTrajet
+        ? { ...ele, availableSeats: ele.availableSeats - 1 }
+        : ele
+    )
   } else {
-    console.log("Train complet.");
+    console.log('Train complet.')
   }
 }
 
-function CalculeNumberSeat(availableSeats) {
-  return seats - availableSeats + 1
+function CalculeNumberSeat (idTrajet) {
+  for (let i = 1; i <= 50; i++) {
+    let trouve = false
+
+    for (let j = 0; j < tickets.length; j++) {
+      if (i === tickets[j].seatNumber && tickets[j].tripId === idTrajet) {
+        trouve = true
+        break
+      }
+    }
+
+    if (!trouve) {
+      return i
+    }
+  }
 }
 
-function AffichageTickets() {
-  console.log("=== TICKETS ===");
+function AffichageTickets () {
+  console.log('=== TICKETS ===')
   if (tickets.length === 0) {
-    console.log(`Aucun ticket enregistré.`);
+    console.log(`Aucun ticket enregistré.`)
     return
   }
 
-  tickets.forEach((ele) => {
+  tickets.forEach(ele => {
     AffichageTicket(ele)
   })
 }
 
-function AffichageTicket(ticket) {
-  const trajet = trips.find((trip) => trip.id == ticket.tripId)
+function AffichageTicket (ticket) {
+  const trajet = trips.find(trip => trip.id == ticket.tripId)
   console.log(`Ticket #${ticket.id}
       \nPassager : ${ticket.passengerName}
       \nTrajet : ${trajet.departure} -> ${trajet.destination}
       \nPlace : ${ticket.seatNumber}
       \nPrix : ${ticket.price} DH
-  `);
+  `)
 }
 
-function AnnulerTicket() {
-  const idTicket = Number(prompt("Identifiant du ticket : "))
-  const ticket = tickets.find((ele) => ele.id === idTicket)
+function AnnulerTicket () {
+  const idTicket = Number(prompt('Identifiant du ticket : '))
+  const ticket = tickets.find(ele => ele.id === idTicket)
   if (!ticket) {
-    console.log("Ticket Introuvable !");
+    console.log('Ticket Introuvable !')
     return
   }
-  trips = trips.map((ele) => ele.id === ticket.tripId ? { ...ele, availableSeats: ++ele.availableSeats } : ele)
-  tickets = tickets.filter((ele) => ele.id !== idTicket)
-  console.log(`Ticket annulé avec succès.`);
+  trips = trips.map(ele =>
+    ele.id === ticket.tripId
+      ? { ...ele, availableSeats: ++ele.availableSeats }
+      : ele
+  )
+  tickets = tickets.filter(ele => ele.id !== idTicket)
+  console.log(`Ticket annulé avec succès.`)
 }
 
-function RecherchTicketParNom() {
-  const nom = prompt("Nom du passager : ")
-  AffichageTicket(tickets.find((ele) => ele.passengerName === nom))
+function RecherchTicketParNom () {
+  const nom = prompt('Nom du passager : ')
+  const ticketTrouver = tickets.filter(
+    ele => ele.passengerName.toLowerCase() === nom.toLowerCase()
+  )
+  if (!ticketTrouver) {
+    console.log('Aucun ticket trouver')
+    return
+  }
+  AffichageTickets(ticketTrouver)
 }
 
-function FilterTrajets() {
-  const ville = prompt("Ville de départ : ")
-  const trajetsFiltrer = trips.filter((trip) => trip.departure.toLowerCase() === ville.toLowerCase())
-  trajetsFiltrer.forEach((ele) => console.log(`${ele.departure} -> ${ele.destination} : ${ele.price} DH`))
+function FilterTrajets () {
+  const ville = prompt('Ville de départ : ')
+  const trajetsFiltrer = trips.filter(
+    trip => trip.departure.toLowerCase() === ville.toLowerCase()
+  )
+  trajetsFiltrer.forEach(ele =>
+    console.log(`${ele.departure} -> ${ele.destination} : ${ele.price} DH`)
+  )
 }
 
-function TrierTrajet() {
-  trips.sort((a, b) => a.price - b.price).forEach((ele) => console.log(`${ele.departure} -> ${ele.destination} : ${ele.price} DH\n`))
+function TrierTrajet () {
+  trips
+    .sort((a, b) => a.price - b.price)
+    .forEach(ele =>
+      console.log(`${ele.departure} -> ${ele.destination} : ${ele.price} DH\n`)
+    )
 }
 
-function Bonus() {
-  console.log(`Nombre total de tickets : ${tickets.length}`);
-  console.log(`Chiffre d'affaires total : ${tickets.reduce((acc, cur) => Number(acc) + Number(cur.price), 0)} DH`);
-  let arr = []
-  tickets.forEach((ele) => arr.push(ele.tripId))
-  console.log(arr);
-  // console.log(`Trajet le plus vendu :`);
+function Bonus () {
+  console.log(`Nombre total de tickets : ${tickets.length}`)
+  console.log(
+    `Chiffre d'affaires total : ${tickets.reduce(
+      (acc, cur) => Number(acc) + Number(cur.price),
+      0
+    )} DH`
+  )
 }
