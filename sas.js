@@ -198,7 +198,7 @@ do {
   ChoixMenu(choix)
 } while (choix !== 0)
 
-function Menu () {
+function Menu() {
   console.log('='.repeat(30))
   console.log('RAILWAY MANAGER')
   console.log('='.repeat(30))
@@ -213,7 +213,7 @@ function Menu () {
   console.log('0. Quitter')
 }
 
-function ChoixMenu (a) {
+function ChoixMenu(a) {
   switch (a) {
     case 1: {
       AffichageTrajet()
@@ -258,7 +258,7 @@ function ChoixMenu (a) {
   }
 }
 
-function AffichageTrajet () {
+function AffichageTrajet() {
   console.log('=== TRAJETS DISPONIBLES ===')
   for (let i = 0; i < trips.length; i++) {
     console.log(
@@ -273,7 +273,7 @@ function AffichageTrajet () {
   }
 }
 
-function AcheteTicket () {
+function AcheteTicket() {
   const name = prompt('Entrer Votre Nom : ')
   const idTrajet = Number(prompt('Identifiant du trajet : '))
 
@@ -312,36 +312,39 @@ function AcheteTicket () {
   }
 }
 
-function CalculeNumberSeat (idTrajet) {
+function CalculeNumberSeat(idTrajet) {
+  const trajet = trips.find((trp) => trp.id === idTrajet)
+  console.log(trajet.availableSeats);
+
   for (let i = 1; i <= 50; i++) {
-    let trouve = false
+    let isFind = false
 
     for (let j = 0; j < tickets.length; j++) {
       if (i === tickets[j].seatNumber && tickets[j].tripId === idTrajet) {
-        trouve = true
+        isFind = true
         break
       }
     }
 
-    if (!trouve) {
+    if (!isFind) {
       return i
     }
   }
 }
 
-function AffichageTickets () {
+function AffichageTickets(ticketTrouver) {
   console.log('=== TICKETS ===')
-  if (tickets.length === 0) {
+  if (ticketTrouver.length === 0) {
     console.log(`Aucun ticket enregistré.`)
     return
   }
 
-  tickets.forEach(ele => {
+  ticketTrouver.forEach(ele => {
     AffichageTicket(ele)
   })
 }
 
-function AffichageTicket (ticket) {
+function AffichageTicket(ticket) {
   const trajet = trips.find(trip => trip.id == ticket.tripId)
   console.log(`Ticket #${ticket.id}
       \nPassager : ${ticket.passengerName}
@@ -351,7 +354,7 @@ function AffichageTicket (ticket) {
   `)
 }
 
-function AnnulerTicket () {
+function AnnulerTicket() {
   const idTicket = Number(prompt('Identifiant du ticket : '))
   const ticket = tickets.find(ele => ele.id === idTicket)
   if (!ticket) {
@@ -367,7 +370,7 @@ function AnnulerTicket () {
   console.log(`Ticket annulé avec succès.`)
 }
 
-function RecherchTicketParNom () {
+function RecherchTicketParNom() {
   const nom = prompt('Nom du passager : ')
   const ticketTrouver = tickets.filter(
     ele => ele.passengerName.toLowerCase() === nom.toLowerCase()
@@ -376,10 +379,11 @@ function RecherchTicketParNom () {
     console.log('Aucun ticket trouver')
     return
   }
+  console.log(ticketTrouver);
   AffichageTickets(ticketTrouver)
 }
 
-function FilterTrajets () {
+function FilterTrajets() {
   const ville = prompt('Ville de départ : ')
   const trajetsFiltrer = trips.filter(
     trip => trip.departure.toLowerCase() === ville.toLowerCase()
@@ -389,7 +393,7 @@ function FilterTrajets () {
   )
 }
 
-function TrierTrajet () {
+function TrierTrajet() {
   trips
     .sort((a, b) => a.price - b.price)
     .forEach(ele =>
@@ -397,7 +401,7 @@ function TrierTrajet () {
     )
 }
 
-function Bonus () {
+function Bonus() {
   console.log(`Nombre total de tickets : ${tickets.length}`)
   console.log(
     `Chiffre d'affaires total : ${tickets.reduce(
