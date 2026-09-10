@@ -314,13 +314,13 @@ function AcheteTicket() {
 
 function CalculeNumberSeat(idTrajet) {
   const trajet = trips.find((trp) => trp.id === idTrajet)
-  console.log(trajet.availableSeats);
+  const lengthTicketAcheter = tickets.filter((ele) => ele.tripId === trajet.id).length
 
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= trajet.availableSeats + lengthTicketAcheter; i++) {
     let isFind = false
 
     for (let j = 0; j < tickets.length; j++) {
-      if (i === tickets[j].seatNumber && tickets[j].tripId === idTrajet) {
+      if (tickets[j].tripId === idTrajet && i === tickets[j].seatNumber) {
         isFind = true
         break
       }
@@ -332,14 +332,14 @@ function CalculeNumberSeat(idTrajet) {
   }
 }
 
-function AffichageTickets(ticketTrouver) {
+function AffichageTickets() {
   console.log('=== TICKETS ===')
-  if (ticketTrouver.length === 0) {
+  if (tickets.length === 0) {
     console.log(`Aucun ticket enregistré.`)
     return
   }
 
-  ticketTrouver.forEach(ele => {
+  tickets.forEach(ele => {
     AffichageTicket(ele)
   })
 }
@@ -379,8 +379,16 @@ function RecherchTicketParNom() {
     console.log('Aucun ticket trouver')
     return
   }
-  console.log(ticketTrouver);
-  AffichageTickets(ticketTrouver)
+
+  ticketTrouver.forEach((ticket) => {
+    const trajet = trips.find(trip => trip.id == ticket.tripId)
+    console.log(`Ticket #${ticket.id}
+      \nPassager : ${ticket.passengerName}
+      \nTrajet : ${trajet.departure} -> ${trajet.destination}
+      \nPlace : ${ticket.seatNumber}
+      \nPrix : ${ticket.price} DH
+  `);
+  })
 }
 
 function FilterTrajets() {
@@ -394,19 +402,31 @@ function FilterTrajets() {
 }
 
 function TrierTrajet() {
-  trips
-    .sort((a, b) => a.price - b.price)
+  let newArr = trips
+
+  for (let i = 0; i < newArr.length; i++) {
+    for (let j = 0; j < newArr.length - 1; j++) {
+      if (newArr[j].price > newArr[j + 1].price) {
+        let temp = newArr[j]
+        newArr[j] = newArr[j + 1]
+        newArr[j + 1] = temp
+      }
+    }
+  }
+
+
+  newArr
     .forEach(ele =>
       console.log(`${ele.departure} -> ${ele.destination} : ${ele.price} DH\n`)
     )
 }
 
 function Bonus() {
+  let somme = 0
+  for (let i = 0; i < tickets.length; i++) {
+    somme += Number(tickets[i].price)
+  }
+
   console.log(`Nombre total de tickets : ${tickets.length}`)
-  console.log(
-    `Chiffre d'affaires total : ${tickets.reduce(
-      (acc, cur) => Number(acc) + Number(cur.price),
-      0
-    )} DH`
-  )
+  console.log(`Chiffre d'affaires total : ${somme} DH`)
 }
